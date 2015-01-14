@@ -1,0 +1,3 @@
+_git_merged () {
+    __gitcomp_nl "$(__git_refs)"
+}

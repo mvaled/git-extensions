@@ -1,0 +1,45 @@
+#!/bin/sh
+
+# Tests whether branch $1 is merged in branch $2.  Returns code 0 if the test
+# is true, 1 otherwise.
+#
+# Put this is your PATH and the use as:
+#
+#    git merged <source> [target]
+#
+# or:
+#
+#    git merged [. target]
+#
+# The second way simply prints all local branches that are merged in target.
+#
+
+SOURCE=$1
+TARGET=$2
+
+if [ -z "$TARGET" ]; then
+    TARGET="HEAD"
+fi
+
+if [ -z "$SOURCE" -o "$SOURCE" = "*" -o "$SOURCE" = "." ]; then
+    git branch | grep -v ^* | cut -b3- | while read branch; do
+	if git merged "$branch" "$TARGET" 2>/dev/null; then
+	    echo "$branch"
+	fi
+    done
+    exit 0;
+fi
+
+base=`git merge-base "$SOURCE" "$TARGET"`
+if [ $? -ne 0 ]; then
+    exit 1
+fi
+current=`git show "$SOURCE" | head -1 | awk '{print $2}'`
+
+if [ "$base" = "$current" ]; then
+    echo "Branch (or revision) \"$SOURCE\" is merged in \"$TARGET\"" >&2
+    exit 0
+else
+    echo "Branch (or revision) \"$SOURCE\" is NOT merged \"$TARGET\"" >&2
+    exit 1
+fi

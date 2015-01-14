@@ -1,0 +1,33 @@
+#!/bin/bash
+
+# Pushes all local branches to remote repositories that match REMOTE_NAME
+#
+# Usage: git local-push-all [REMOTE_NAME]
+
+
+REMOTE_NAME="$1"
+
+function get_upstream_repo {
+   git remote -v | grep ^"$REMOTE_NAME" | grep "(push)$" | awk '{print $1}'
+}
+
+
+STASHED=0
+if [ `git status --porcelain | grep -v ^? | wc -l` -gt 0 ]; then
+    STASHED=1
+    git stash
+fi
+CURRENT_BRANCH=`git branch | grep ^* | cut -b3-`
+
+get_upstream_repo | while read remote; do
+    git push "$remote" "$CURRENT_BRANCH"
+    (git branch | cut -b3- | grep -v ^"$CURRENT_BRANCH"$ | while read branch; do
+	    git checkout "$branch"
+	    git push "$remote" "$branch"
+    done)
+    git checkout "$CURRENT_BRANCH"
+done
+
+if [  "$STASHED" -gt 0 ];  then
+    git stash pop
+fi
