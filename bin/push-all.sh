@@ -26,7 +26,7 @@ REMOTE_NAME="$2"
 find -maxdepth 3 -mindepth 1 -type d -name ".git" | grep "$FILTER" | while read repo; do
     pushd . >/dev/null
     cd "$repo/.."
-    echo ">>> `pwd`"
+    echo -e '\E[37;44m'"\033[1m>>> `pwd`\033[0m"
     git local-push-all "$REMOTE_NAME"
     popd >/dev/null
 done

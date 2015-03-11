@@ -29,7 +29,7 @@ function get_upstream_repo {
 find -maxdepth 3 -mindepth 1 -type d -name ".git" | grep "$FILTER" | while read repo; do
     pushd . >/dev/null
     cd "$repo/.."
-    echo ">>> `pwd`"
+    echo -e '\E[37;44m'"\033[1m>>> `pwd`\033[0m"
     STASHED=0
     if [ `git status --porcelain | grep -v ^? | wc -l` -gt 0 ]; then
 	STASHED=1
