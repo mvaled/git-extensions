@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # Tests whether branch $1 is merged in branch $2.  Returns code 0 if the test
 # is true, 1 otherwise.
@@ -9,20 +9,33 @@
 #
 # or:
 #
-#    git merged [. target]
+#    git merged [-a] [. target]
 #
 # The second way simply prints all local branches that are merged in target.
-#
+# If -a is passed, all branches (including remote) will be printed.
 
-SOURCE=$1
-TARGET=$2
+SHOW_ALL=""
+SOURCE=""
+TARGET=""
+while [ \! -z "$1" ] ; do
+    case "$1" in
+	"-a") SHOW_ALL="-a"; shift;;
+	*)
+	    if [ -z "$SOURCE" ]; then
+		SOURCE="$1"
+	    else
+		TARGET="$1"
+	    fi
+	    shift ;;
+    esac
+done
 
 if [ -z "$TARGET" ]; then
     TARGET="HEAD"
 fi
 
 if [ -z "$SOURCE" -o "$SOURCE" = "*" -o "$SOURCE" = "." ]; then
-    git branch | grep -v ^* | cut -b3- | while read branch; do
+    git branch $SHOW_ALL | grep -v ^* | cut -b3- | while read branch; do
 	if git merged "$branch" "$TARGET" 2>/dev/null; then
 	    echo "$branch"
 	fi
