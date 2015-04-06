@@ -18,12 +18,12 @@ if [ `git status --porcelain | grep -v ^? | wc -l` -gt 0 ]; then
 fi
 CURRENT_BRANCH=`git branch | grep ^* | cut -b3-`
 
-get_upstream_repo | while read remote; do
-    git fetch "$remote"
-    if ! git merged "$CURRENT_BRANCH" "$remote/$CURRENT_BRANCH"; then
-	git push "$remote" "$CURRENT_BRANCH"
-    fi
-    (git branch | cut -b3- | grep -v ^"$CURRENT_BRANCH"$ | while read branch; do
+git branch | cut -b3- | grep -v ^"$CURRENT_BRANCH"$ | while read branch; do
+    (get_upstream_repo | while read remote; do
+            git fetch "$remote"
+            if ! git merged "$CURRENT_BRANCH" "$remote/$CURRENT_BRANCH"; then
+	        git push "$remote" "$CURRENT_BRANCH"
+            fi
 	    if ! git merged "$branch" "$remote/$branch"; then
 		git checkout "$branch"
 		git push "$remote" "$branch"
