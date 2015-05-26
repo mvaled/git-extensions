@@ -1,8 +1,15 @@
 #!/bin/bash
 # Pushes all local branches to remote repositories that match REMOTE_NAME
 #
-# Usage: git local-push-all [REMOTE_NAME]
+# Usage: git local-push-all [-f] [REMOTE_NAME]
 
+
+if [ "$1" = "-f" ]; then
+   FORCE="-f"
+   shift
+else
+   FORCE=""
+fi
 
 REMOTE_NAME="$1"
 
@@ -22,11 +29,11 @@ git branch | cut -b3- | grep -v ^"$CURRENT_BRANCH"$ | while read branch; do
     (get_upstream_repo | while read remote; do
             git fetch "$remote"
             if ! git merged "$CURRENT_BRANCH" "$remote/$CURRENT_BRANCH"; then
-	        git push "$remote" "$CURRENT_BRANCH"
+	        git push $FORCE "$remote" "$CURRENT_BRANCH"
             fi
 	    if ! git merged "$branch" "$remote/$branch"; then
 		git checkout "$branch"
-		git push "$remote" "$branch"
+		git push $FORCE "$remote" "$branch"
 	    fi
     done)
     git checkout "$CURRENT_BRANCH"
