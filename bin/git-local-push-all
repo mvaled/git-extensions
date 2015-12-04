@@ -3,15 +3,35 @@
 #
 # Usage: git local-push-all [-f] [REMOTE_NAME]
 
+HELP="Usage: git local-push-all [-f] [REMOTE_NAME]
+"
 
-if [ "$1" = "-f" ]; then
-   FORCE="-f"
-   shift
-else
-   FORCE=""
-fi
+msg="printf"
 
-REMOTE_NAME="$1"
+emsg () {
+	$msg "${cR}$1${cZ}"
+}
+
+update_colors () {
+    cR="\033[31m"
+    cG="\033[32m"
+    cC="\033[35m"
+    cP="\033[36m"
+    cU="\033[4m"
+    cZ="\033[0m"
+}
+
+update_colors
+
+FORCE=""
+while [ "$1" ]; do
+	case "$1" in
+            -f) FORCE="-f"; shift;;
+            -h) eval "$msg \"${HELP}\""; exit 0;;
+            -*) emsg "Unknown option $1\n"; exit 1;;
+            *) REMOTE_NAME="$1"; shift;;
+        esac
+done
 
 function get_upstream_repo {
    git remote -v | grep ^"$REMOTE_NAME" | grep "(push)$" | awk '{print $1}'
