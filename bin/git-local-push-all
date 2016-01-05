@@ -37,28 +37,6 @@ function get_upstream_repo {
    git remote -v | grep ^"$REMOTE_NAME" | grep "(push)$" | awk '{print $1}'
 }
 
-
-STASHED=0
-if [ `git status --porcelain | grep -v ^? | wc -l` -gt 0 ]; then
-    STASHED=1
-    git stash
-fi
-CURRENT_BRANCH=`git branch | grep ^* | cut -b3-`
-
-git branch | cut -b3- | grep -v ^"$CURRENT_BRANCH"$ | while read branch; do
-    (get_upstream_repo | while read remote; do
-            git fetch "$remote"
-            if ! git merged "$CURRENT_BRANCH" "$remote/$CURRENT_BRANCH"; then
-	        git push $FORCE "$remote" "$CURRENT_BRANCH"
-            fi
-	    if ! git merged "$branch" "$remote/$branch"; then
-		git checkout "$branch"
-		git push $FORCE "$remote" "$branch"
-	    fi
-    done)
-    git checkout "$CURRENT_BRANCH"
+get_upstream_repo | while read remote; do
+    git push -v $remote :
 done
-
-if [  "$STASHED" -gt 0 ];  then
-    git stash pop
-fi
