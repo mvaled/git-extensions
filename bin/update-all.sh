@@ -38,7 +38,7 @@ find -maxdepth 3 -mindepth 1 -type d -name ".git" | grep "$FILTER" | while read 
     CURRENT_BRANCH=`git branch | grep ^* | cut -b3-`
     (get_upstream_repo | while read remote; do
 	git remote -v | grep ^"$remote" | grep "(fetch)$"
-	git fetch "$remote"
+	git fetch --prune --tags "$remote"
 	git pull --ff-only "$remote" "$CURRENT_BRANCH"
     done)
     if [  "$STASHED" -gt 0 ];  then
