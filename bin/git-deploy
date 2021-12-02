@@ -1,0 +1,24 @@
+#!/bin/bash
+
+dir=$PWD
+while [ ! -d $dir/.git -a $dir != "/home" -a $dir != "/" ]; do dir=$(dirname $dir); done
+if [ ! -d $dir/.git ]; then
+	echo "Not repository found in $PWD (traversed up to $dir)"
+	exit 1
+fi
+
+reponame=$(basename $dir)
+read -r -p "Enter the name of the current repository: " repo
+
+if [ $repo != $reponame ]; then
+	echo "Sorry, I was expecting '$reponame'"
+	exit 1
+fi
+
+tag=$(date --utc "+%Y.%m.%d.%H%M")
+git tag -s -a -m $tag $tag
+
+
+# Local Variables:
+# mode: sh
+# End:
